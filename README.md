@@ -7,7 +7,8 @@ gcc --version
 If GCC is installed, it prints a version. If you see gcc: command not found, install it with:
 
 
-sudo apt update
+sudo apt update &&
+
 sudo apt install build-essential
 
 
