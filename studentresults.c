@@ -98,38 +98,43 @@ int getFailedList(const Result registry[], int currentSize, float passMark)
     return count;
 }
 
+// int findTopper(const Result registry[], int currentSize,
+//                const char *courseCode)
+// {
+//     int best = -1;
+
+//     for (int i = 0; i < currentSize; i++) {
+//         if (strcmp(registry[i].code, courseCode) == 0) {
+
+//             if (best == -1 ||
+//                 registry[i].mark > registry[best].mark) {
+//                 best = i;
+//             }
+//         }
+//     }
+
+//     return best;
+// }
+
 int findTopper(const Result registry[], int currentSize,
                const char *courseCode)
 {
-    int best = -1;
+    int index = -1;
+    int max = 0;
 
     for (int i = 0; i < currentSize; i++) {
         if (strcmp(registry[i].code, courseCode) == 0) {
 
-            if (best == -1 ||
-                registry[i].mark > registry[best].mark) {
-                best = i;
+            if (index == -1 || registry[i].mark > max) {
+                max = registry[i].mark;
+                index = i;
             }
         }
     }
 
-    return best;
-}
-int findTopper(const Result registry[], int currentSize,
-    const char *courseCode)
-{
-    int index = 0;
-    int max=0;
-    for (int i = 0; i < currentSize; i++) {
-        if (strcmp(registry[i].code, courseCode) == 0 && registry[i].mark > registry[best].mark) {
-            max=registry[i].mark;
-            index=i;
-        
-    }
+    return index;
 }
 
-return index;
-}
 
 int saveResultsToFile(const Result registry[], int currentSize,
                       const char *filename)
