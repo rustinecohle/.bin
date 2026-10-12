@@ -17,7 +17,7 @@ const char *isbn       char isbn[21];       isbn         isbn
 
 int searchCode         int value;            value        searchCode
 
-
+int *a                  int a                 &a              *a                
 
 
 
