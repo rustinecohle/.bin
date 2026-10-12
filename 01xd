@@ -1,0 +1,143 @@
+
+int currentSize	Plain value	int currentSize;	currentSize	currentSize
+int *currentSize	Pointer to an integer	int currentSize;	&currentSize	*currentSize
+Medicine registry[]	Array of structures	Medicine record[MAX];	record	registry[i].code
+const Medicine *medPtr	Pointer to one structure (read-only through this pointer)	Medicine temp;	&temp	medPtr->code
+Medicine *results[]	Array of structure pointers	Medicine *results[MAX];	results	results[count] = ...
+const char *isbn	Pointer to a character string	char isbn[21];	isbn	isbn
+int searchCode	Plain value	int value;	value	searchCode
+Step 3: Remember the Rules
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Rule 1: No * in the parameter type
+
+Example:
+
+void search(int searchCode);
+
+Declare: int value;
+Pass: search(value);
+Use inside the function: searchCode
+
+A plain value is passed directly.
+
+Rule 2: One * in the parameter type
+
+Example:
+
+void update(int *currentSize);
+
+Declare: int currentSize;
+Pass: update(&currentSize);
+Use inside the function: *currentSize
+
+A pointer receives an address. Use & to pass the address of a normal variable and * to access the value through the pointer.
+
+Rule 3: An array parameter
+
+Example:
+
+void display(Medicine registry[]);
+
+Declare: Medicine record[MAX];
+Pass: display(record);
+Use inside the function: registry[i].code
+
+The array name is passed without &. In a function parameter, Medicine registry[] is adjusted to a pointer to Medicine.
+
+Rule 4: A pointer to a structure
+
+Example:
+
+void displayMedicine(const Medicine *medPtr);
+
+Declare: Medicine temp;
+Pass: displayMedicine(&temp);
+Use inside the function: medPtr->code
+
+Use -> to access a structure member through a pointer. The const qualifier prevents modification of the structure through this pointer.
+
+Rule 5: An array of pointers
+
+Example:
+
+void collectResults(Medicine *results[]);
+
+Declare: Medicine *results[MAX];
+Pass: collectResults(results);
+Use inside the function: results[count] = ...
+
+Each element of results is a pointer to a Medicine structure. Assign a valid structure address to an element.
+
+Rule 6: A string parameter
+
+Example:
+
+void findBook(const char *isbn);
+
+Declare: char isbn[21];
+Pass: findBook(isbn);
+Use inside the function: isbn
+
+A character array name can be passed directly as a string pointer. The array must contain a null-terminated string.
+
+Final Shortcut to Remember
+Plain variable: Pass the variable directly.
+Pointer parameter (*): Usually pass an address using &.
+Array parameter ([]): Pass the array name without &.
+Structure pointer (struct *): Pass &structureVariable; use -> inside the function.
+Pointer to a value (int *): Pass &variable; use *pointer to access the value.
+String parameter (const char *): Pass the character array name.
+Array of pointers (Type *array[]): Pass the array name; each element stores a pointer.
+
+Important: Count the stars to identify pointer levels, but also read the complete type. An array of pointers (Medicine *results[]) is different from an array of structures (Medicine registry[]).
