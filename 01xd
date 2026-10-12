@@ -6,7 +6,17 @@ const Medicine *medPtr	Pointer to one structure (read-only through this pointer)
 Medicine *results[]	Array of structure pointers	Medicine *results[MAX];	results	results[count] = ...
 const char *isbn	Pointer to a character string	char isbn[21];	isbn	isbn
 int searchCode	Plain value	int value;	value	searchCode
+===========================================================
+
+int currentSize	Plain value	int currentSize;	currentSize	currentSize
+int *currentSize	Pointer to an integer	int currentSize;	&currentSize	*currentSize
+Medicine registry[]	Array of structures	Medicine record[MAX];	record	registry[i].code
+const Medicine *medPtr	Pointer to one structure (read-only through this pointer)	Medicine temp;	&temp	medPtr->code
+Medicine *results[]	Array of structure pointers	Medicine *results[MAX];	results	results[count] = ...
+const char *isbn	Pointer to a character string	char isbn[21];	isbn	isbn
+int searchCode	Plain value	int value;	value	searchCode
 Step 3: Remember the Rules
+
 
 
 
