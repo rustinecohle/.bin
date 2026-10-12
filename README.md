@@ -1,3 +1,5 @@
+total mark 4.25/30 couldnot get good marks, hursh fait
+
 Open Terminal and check:
 
 
