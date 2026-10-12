@@ -1,0 +1,822 @@
+C CORE LANGUAGE REFERENCE
+Fundamentals, Operators, Functions, Arrays, and Strings
+======================================================
+
+
+1. FORMAT SPECIFIERS
+--------------------
+
+Specifier       Data type                    Description / usage
+---------------------------------------------------------------------------
+%c              char                         Single character
+%d / %i         int                          Signed decimal integer
+%u              unsigned int                 Unsigned decimal integer
+%hd / %hu       short / unsigned short       Short signed / unsigned integer
+%ld / %lu       long / unsigned long         Long signed / unsigned integer
+%lld / %llu     long long / unsigned long long
+                                             Long long signed / unsigned integer
+%f              float (printf: double)       Decimal floating-point
+%lf             double (scanf)                Read a double with scanf
+%Lf             long double                  Extended precision floating-point
+%e / %E         float / double               Scientific notation
+%g / %G         float / double               Compact %f or %e representation
+%s              char array / char pointer    Null-terminated string
+%zu             size_t                       Result type of sizeof
+%o              unsigned int                 Octal (base 8)
+%x / %X         unsigned int                  Hexadecimal (base 16)
+
+
+Important format-specifier notes
+--------------------------------
+- printf("%f", value) prints a floating-point value.
+- scanf("%f", &f) reads a float.
+- scanf("%lf", &d) reads a double.
+- printf("%f", d) also prints a double.
+- For %s input, limit the width when possible:
+      char name[20];
+      scanf("%19s", name);
+- %s with scanf stops at whitespace. Use fgets() to read a full line.
+
+
+2. EXPRESSIONS AND OPERATORS
+----------------------------
+
+Operator precedence (highest to lowest)
+---------------------------------------
+
+Level   Associativity   Operators                 Category
+---------------------------------------------------------------------------
+  1     Left to right  () [] . -> x++ x--         Postfix / access
+  2     Right to left  ++x --x + - ! ~ (type)     Unary / cast
+                         sizeof
+  3     Left to right  * / %                      Multiplicative
+  4     Left to right  + -                        Additive
+  5     Left to right  << >>                      Bitwise shifts
+  6     Left to right  < <= > >=                  Relational
+  7     Left to right  == !=                      Equality
+  8     Left to right  &                          Bitwise AND
+  9     Left to right  ^                          Bitwise XOR
+ 10     Left to right  |                          Bitwise OR
+ 11     Left to right  &&                         Logical AND
+ 12     Left to right  ||                         Logical OR
+ 13     Right to left  ?:                         Conditional / ternary
+ 14     Right to left  = += -= *= /= %= &= |=     Assignment
+                         ^= <<= >>=
+ 15     Left to right  ,                          Comma operator
+
+Note: precedence determines grouping; it does not necessarily determine
+the order in which operands are evaluated.
+
+
+Arithmetic and increment
+------------------------
+a + b       Addition
+a - b       Subtraction
+a * b       Multiplication
+a / b       Division; integer division truncates the fractional part
+a % b       Remainder (integer operands)
+a++         Post-increment: expression uses old value, then increments
+++a         Pre-increment: increments first, then expression uses new value
+
+Bitwise operators
+-----------------
+a & b       Bitwise AND
+a | b       Bitwise OR
+a ^ b       Bitwise XOR
+~a          Bitwise NOT (complement)
+a << n      Left shift
+a >> n      Right shift
+
+Relational and logical operators
+--------------------------------
+a == b      Equal
+a != b      Not equal
+a < b       Less than
+a <= b      Less than or equal
+a > b       Greater than
+a >= b      Greater than or equal
+!a          Logical NOT: 1 if a is zero, otherwise 0
+a && b      Logical AND; skips b if a is false
+a || b      Logical OR; skips b if a is true
+
+Relational and logical expressions produce 1 for true and 0 for false.
+
+Type cast, size, and structure access
+-------------------------------------
+sizeof(type)       Size in bytes; result type is size_t
+(float)a / b       Cast a to float before division
+s.member           Access a structure member
+ptr->member        Access a member through a structure pointer
+condition ? x : y  Use x if condition is true; otherwise use y
+
+
+3. FUNCTIONS
+------------
+
+Functions divide a program into reusable blocks. C passes arguments
+by value. Passing a pointer lets a function access the pointed-to object.
+
+Function prototype and pass-by-value
+-------------------------------------
+#include <stdio.h>
+
+int add(int a, int b);
+void passByValue(int num);
+
+int main(void)
+{
+    int x = 10;
+
+    passByValue(x);          /* x remains 10 */
+    int sum = add(5, 7);     /* sum becomes 12 */
+
+    printf("Sum = %d\n", sum);
+    return 0;
+}
+
+void passByValue(int num)
+{
+    num = 99;                /* Changes only the local copy */
+}
+
+int add(int a, int b)
+{
+    return a + b;
+}
+
+
+Passing arrays to functions
+---------------------------
+/* Read-only access to array elements */
+void printArray(const int arr[], int size)
+{
+    for (int i = 0; i < size; i++) {
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
+}
+
+/* Changes affect the caller's array */
+void doubleArray(int arr[], int size)
+{
+    for (int i = 0; i < size; i++) {
+        arr[i] *= 2;
+    }
+}
+
+/* Print a null-terminated string */
+void printString(const char str[])
+{
+    printf("%s\n", str);
+}
+
+Notes:
+- Pass the array name, for example: printArray(numbers, count);
+- Pass the size separately because an array parameter does not carry its
+  element count into the function.
+- const prevents modification through that parameter; it does not make
+  the original array globally immutable.
+
+
+4. CONTROL FLOW: SWITCH AND LOOPS
+---------------------------------
+
+Switch statement
+----------------
+switch (expression) {
+    case 1:
+        /* Code when expression equals 1 */
+        break;
+
+    case 2:
+        /* Code when expression equals 2 */
+        break;
+
+    default:
+        /* Runs when no case matches; optional */
+        break;
+}
+
+Notes:
+- switch expressions use an integer type, a character, or an enum.
+- break exits the switch. Without break, execution may continue into
+  the next case (fall-through).
+
+
+Loop jump statements
+--------------------
+break;       Immediately exits the nearest loop or switch.
+continue;    Skips the rest of the current loop body and proceeds to
+             the next iteration.
+
+
+For loop: count-controlled
+--------------------------
+for (int i = 0; i < 5; i++) {
+    printf("%d ", i);       /* Prints: 0 1 2 3 4 */
+}
+
+
+While loop: checks condition before each iteration
+--------------------------------------------------
+int i = 0;
+
+while (i < 5) {
+    printf("%d ", i);
+    i++;
+}
+
+
+Do-while loop: executes at least once
+-------------------------------------
+int j = 0;
+
+do {
+    printf("%d ", j);
+    j++;
+} while (j < 0);            /* Semicolon is required */
+
+
+Infinite loops
+--------------
+for (;;) {
+    /* Runs until exited */
+}
+
+while (1) {
+    /* Runs until exited */
+}
+
+
+5. ARRAYS: ONE-DIMENSIONAL AND TWO-DIMENSIONAL
+----------------------------------------------
+
+One-dimensional array declarations
+----------------------------------
+int arr[5];                         /* Uninitialized local array */
+int arr[5] = {1, 2, 3, 4, 5};      /* All elements initialized */
+int arr[] = {1, 2, 3, 4, 5};       /* Size inferred: 5 */
+int arr[5] = {1, 2};               /* Remaining elements are zero */
+int arr[5] = {0};                  /* All elements are zero */
+int arr[5] = {[2] = 10, [4] = 20}; /* C99+: {0, 0, 10, 0, 20} */
+
+Important:
+- An uninitialized local array contains indeterminate values.
+- Global and static arrays are zero-initialized if no initializer is given.
+
+
+Calculate array length
+----------------------
+size_t len = sizeof(arr) / sizeof(arr[0]);
+
+This works only where arr is an actual array, not a function parameter
+that has adjusted to a pointer.
+
+
+Two-dimensional arrays (matrices)
+---------------------------------
+Syntax:
+    type name[rows][columns];
+
+C stores array elements in row-major order.
+
+int matrix[2][3] = {
+    {1, 2, 3},
+    {4, 5, 6}
+};
+
+int matrix[2][3] = {1, 2, 3, 4, 5, 6};
+
+int matrix[][3] = {1, 2, 3, 4, 5, 6};
+/* Column count is required when row count is omitted. */
+
+int matrix[2][3] = {0};             /* All elements are zero */
+
+
+6. STRINGS AND THE <string.h> LIBRARY
+-------------------------------------
+
+A C string is a character array ending with the null character '\\0'.
+
+
+String declarations
+-------------------
+char str1[] = "Hello";
+/* Six bytes: H e l l o '\\0' */
+
+char str2[20] = "Hello";
+/* Capacity: 20 bytes, including the terminating '\\0' */
+
+char str3[] = {'H', 'e', 'l', 'l', 'o', '\\0'};
+
+
+Two-dimensional character array (string table)
+-----------------------------------------------
+char names[3][20] = {
+    "Alice",
+    "Bob",
+    "Charlie"
+};
+
+
+String input and output
+-----------------------
+printf("%s", str);          /* Print a string */
+printf("%.3s", str);        /* Print at most 3 characters */
+puts(str);                  /* Print string and add newline */
+
+fgets(buf, sizeof(buf), stdin);
+/* Reads a line safely, including spaces, up to buffer capacity - 1. */
+
+
+Remove the newline from fgets
+-----------------------------
+#include <string.h>
+
+buf[strcspn(buf, "\n")] = '\\0';
+
+This replaces the first newline with the string terminator if a newline
+was read. If the input line was longer than the buffer, fgets may not
+have read the newline.
+
+
+String input safety
+-------------------
+- Never use gets(); it can overflow the buffer.
+- scanf("%s", name) stops at whitespace.
+- Use a field width with scanf, such as scanf("%19s", name) for char name[20].
+- Use fgets() when the input may contain spaces.
+
+
+Common <string.h> functions
+---------------------------
+Function             Description
+---------------------------------------------------------------------------
+strlen(s)             Length excluding '\\0'
+strcpy(dest, src)     Copy src to dest; dest must have enough space
+strncpy(dest, src, n) Copy up to n characters; may not add '\\0'
+strcat(dest, src)     Append src; dest must have enough space
+strncat(dest, src, n) Append up to n characters from src
+strcmp(a, b)          0 if equal; negative or positive if different
+strncmp(a, b, n)      Compare at most n characters
+strchr(s, c)          Find first occurrence of character c
+strrchr(s, c)         Find last occurrence of character c
+strstr(s, sub)        Find first occurrence of substring sub
+strcspn(s, set)       Length before any character from set occurs
+strtok(s, delim)      Split into tokens using delimiter characters
+
+Important:
+- strcmp(a, b) == 0 means the strings are equal.
+- Do not compare strings with ==; that compares addresses in this context.
+- strcpy(), strcat(), and related functions require sufficient destination
+  space. strncpy() is not automatically safe or guaranteed to terminate.
+
+
+Formatted string operations: sprintf and sscanf
+------------------------------------------------
+#include <stdio.h>
+
+char buf[100];
+int age = 25;
+
+sprintf(buf, "Age: %d", age);     /* Format data into buf */
+sscanf(buf, "Age: %d", &age);     /* Parse data from buf */
+
+Prefer snprintf() over sprintf() when possible, because snprintf() lets
+you specify the destination buffer size:
+
+snprintf(buf, sizeof(buf), "Age: %d", age);
+
+
+END OF REFERENCE
+================
+
+
+======================================================================
+APPENDIX: C SYNTAX AND RETURNS CHEAT SHEET
+Basics, Strings, Pointers, Memory, Structures, Files, and Binary I/O
+======================================================================
+
+
+A1. COMMAND-LINE ARGUMENTS
+--------------------------
+
+int main(int argc, char *argv[])
+{
+    /*
+       argc     = number of command-line arguments
+       argv     = array of argument strings
+       argv[0]  = program name/path
+       argv[1]  = first argument supplied by the user, if present
+    */
+    return 0;
+}
+
+main returns int:
+    0       usually means success
+    nonzero usually indicates an error
+
+
+A2. INPUT AND FORMATTING
+------------------------
+
+Read a string containing spaces with scanf:
+
+char str[100];
+scanf(" %99[^\n]", str);
+
+/*
+   Leading whitespace in the format skips leftover whitespace/newlines.
+   %[^\n] reads characters until a newline.
+   The width 99 prevents writing more than 99 characters into str[100].
+*/
+
+scanf returns:
+    Number of input items successfully assigned, or EOF in some failures.
+
+
+In-memory string formatting: sprintf and sscanf
+------------------------------------------------
+
+char buffer[100];
+int score;
+char name[50];
+
+sprintf(buffer, "Name: %s, Score: %d", "Alice", 95);
+
+/* Parse fields from a string. */
+sscanf("Name: Alice, Score: 95", "Name: %49[^,], Score: %d",
+       name, &score);
+
+sprintf returns:
+    Number of characters written, excluding the terminating '\0'.
+    It does not check the destination buffer capacity.
+
+sscanf returns:
+    Number of input items successfully assigned, or EOF in some failures.
+
+Safer formatting:
+    snprintf(buffer, sizeof(buffer), "Score: %d", score);
+
+
+A3. STRING CONVERSIONS AND OPERATIONS
+-------------------------------------
+
+String conversions from <stdlib.h>:
+
+int    val_i = atoi("123");       /* String to int */
+double val_d = atof("3.14");      /* String to double */
+long   val_l = atol("99999");     /* String to long */
+
+These functions do not report conversion errors reliably. For robust input
+validation, use strtol() or strtod() and check their end-pointer results.
+
+
+Common functions from <string.h>:
+
+char s1[50] = "Hello";
+char s2[] = " World";
+
+size_t len = strlen(s1);          /* Length excluding '\0' */
+
+strcpy(s1, s2);                   /* Copy s2 into s1 */
+strncpy(s1, s2, sizeof(s1) - 1);  /* May not terminate if truncated */
+s1[sizeof(s1) - 1] = '\0';        /* Force final byte to '\0' */
+
+strcat(s1, s2);                   /* Append s2; enough space required */
+strncat(s1, s2, 3);               /* Append at most 3 characters */
+
+int cmp = strcmp(s1, s2);         /* 0 if equal */
+int cmp_n = strncmp(s1, s2, 3);   /* Compare at most 3 characters */
+
+Return types:
+    strlen()             size_t
+    strcmp()/strncmp()   int
+    strcpy()/strcat()     char * (destination pointer)
+
+
+A4. POINTERS AND POINTER ARITHMETIC
+-----------------------------------
+
+int x = 42;
+int *ptr = &x;       /* &x means address of x */
+int val = *ptr;      /* *ptr means value stored at that address */
+*ptr = 100;          /* Changes x to 100 */
+
+/*
+   &  = address-of operator in this context
+   *  = pointer declaration or dereference, depending on context
+*/
+
+
+Pointer arithmetic:
+
+int arr[5] = {10, 20, 30, 40, 50};
+int *p = arr;        /* Points to arr[0] */
+
+p++;                 /* Now points to arr[1], value 20 */
+p = p + 2;           /* Now points to arr[3], value 40 */
+
+/*
+   Pointer arithmetic advances by elements, not raw bytes.
+   p + 2 advances by 2 * sizeof(*p) bytes.
+*/
+
+
+The sizeof operator:
+
+size_t int_size = sizeof(int);                 /* Commonly 4 bytes */
+size_t arr_size = sizeof(arr);                 /* Whole array size */
+size_t num_elements = sizeof(arr) / sizeof(arr[0]); /* 5 elements */
+
+/*
+   sizeof(arr) gives the whole array size only where arr is an actual array.
+   In a function parameter such as int arr[], arr behaves as a pointer;
+   sizeof(arr) there gives the pointer size instead.
+*/
+
+
+A5. PASSING ARRAYS AND STRINGS TO FUNCTIONS
+-------------------------------------------
+
+/* Arrays adjust to pointers in function parameters. Pass length separately. */
+void printArray(const int arr[], int length)
+{
+    for (int i = 0; i < length; i++) {
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
+}
+
+/* Equivalent parameter form: const int *arr */
+
+/* Strings are null-terminated, so their length can be found by scanning. */
+void printString(const char *str)
+{
+    printf("%s", str);
+}
+
+/*
+   Use const when the function should not modify array/string contents
+   through that parameter.
+*/
+
+
+A6. DYNAMIC MEMORY ALLOCATION (<stdlib.h>)
+------------------------------------------
+
+#include <stdlib.h>
+
+int n = 5;
+
+/* malloc allocates uninitialized memory. */
+int *ptr = malloc((size_t)n * sizeof(*ptr));
+
+if (ptr == NULL) {
+    /* Allocation failed; handle the error. */
+}
+
+/* calloc allocates memory and sets all bytes to zero. */
+int *cptr = calloc((size_t)n, sizeof(*cptr));
+
+/* Resize an allocation using a temporary pointer. */
+int new_size = 10;
+int *temp = realloc(ptr, (size_t)new_size * sizeof(*ptr));
+
+if (temp != NULL) {
+    ptr = temp;      /* Keep the new allocation */
+} else {
+    /* ptr is still valid; handle allocation failure */
+}
+
+/* Release memory when finished. */
+free(ptr);
+ptr = NULL;
+
+free(cptr);
+cptr = NULL;
+
+Return types:
+    malloc() / calloc() / realloc()   void * (or NULL on failure)
+    free()                            void (no return value)
+
+In C, a cast on malloc/calloc/realloc is not required.
+
+
+A7. STRUCTURES (STRUCTS)
+------------------------
+
+typedef struct {
+    int id;
+    char name[50];
+    float gpa;
+} Student;
+
+Student s1 = {101, "Alice", 3.8f};
+
+s1.id = 102;              /* Dot operator for a structure variable */
+
+Student *ptr = &s1;
+ptr->gpa = 3.9f;          /* Arrow operator for a structure pointer */
+
+/* ptr->gpa is equivalent to (*ptr).gpa */
+
+
+A8. UNIONS
+----------
+
+union Data {
+    int i;
+    float f;
+    char str[20];
+};
+
+union Data d1;
+d1.i = 10;
+d1.f = 220.5f;
+
+/*
+   Union members share the same memory.
+   Writing to one member can overwrite the representation of another.
+   The union size is at least large enough for its largest member, with
+   alignment and padding also affecting its size.
+*/
+
+
+A9. BITFIELDS
+-------------
+
+struct NetworkHeader {
+    unsigned int version   : 4;  /* 4-bit field */
+    unsigned int is_active : 1;  /* 1-bit field */
+    unsigned int status    : 3;  /* 3-bit field */
+};
+
+/*
+   Bitfield layout and allocation details are implementation-dependent.
+   These widths do not guarantee a particular total structure size.
+*/
+
+
+A10. FILE OPENING AND CLOSING
+------------------------------
+
+FILE *fp = fopen("data.txt", "r");
+
+/*
+   Common modes:
+   "r"  read existing text file
+   "w"  write; create or truncate file
+   "a"  append; create if needed
+   "rb" read binary
+   "wb" write binary; create or truncate
+   "ab" append binary
+*/
+
+if (fp == NULL) {
+    perror("Cannot open file");
+    /* Handle the error. */
+}
+
+/* Close only a successfully opened file. */
+int close_result = fclose(fp);
+
+/* fopen returns FILE * or NULL.
+   fclose returns 0 on success, EOF on failure. */
+
+
+A11. CHARACTER AND STRING FILE I/O
+----------------------------------
+
+int ch = fgetc(fp);             /* Read one character as int */
+fputc('A', fp);                 /* Write one character */
+
+char buffer[255];
+char *line = fgets(buffer, sizeof(buffer), fp);  /* Read a line */
+int write_result = fputs("Hello File!\n", fp);   /* Write a string */
+
+/*
+   fgetc returns the character as int, or EOF at end/error.
+   fputc returns the written character as int, or EOF on error.
+   fgets returns buffer on success, or NULL on end/error.
+   fputs returns a non-negative value on success, or EOF on error.
+   fputs does not add a newline automatically.
+*/
+
+
+A12. FORMATTED FILE I/O
+-----------------------
+
+fprintf(fp, "Name: %s, Age: %d\n", "Bob", 25);
+
+char name_buf[50];
+int age_var;
+
+fscanf(fp, "Name: %49s, Age: %d", name_buf, &age_var);
+
+/*
+   fprintf returns the number of characters written, or a negative value
+   if an output error occurs.
+
+   fscanf returns the number of input items assigned, or EOF if input fails
+   before the first assignment. Always check the returned item count.
+*/
+
+
+A13. ADVANCED STRING SEARCH
+---------------------------
+
+char str[] = "apple,banana,cherry";
+
+/* Find first occurrence of a character. */
+char *ptr_c = strchr(str, 'b');
+
+/* Find first occurrence of a substring. */
+char *ptr_s = strstr(str, "nana");
+
+/* Split a string into tokens. strtok modifies the original string. */
+char *token = strtok(str, ",");
+
+while (token != NULL) {
+    /* Process token here. */
+    token = strtok(NULL, ",");
+}
+
+/*
+   strchr() and strstr() return a pointer to the match, or NULL.
+   strtok() returns a pointer to the next token, or NULL when finished.
+*/
+
+
+A14. FILE POSITIONING AND NAVIGATION
+------------------------------------
+
+long pos = ftell(fp);          /* Current byte position; -1L on error */
+
+fseek(fp, 10, SEEK_SET);       /* 10 bytes from start */
+fseek(fp, -5, SEEK_CUR);       /* 5 bytes before current position */
+fseek(fp, 0, SEEK_END);        /* Position at end of file */
+rewind(fp);                    /* Return to beginning */
+
+Origins for fseek:
+    SEEK_SET    beginning of file
+    SEEK_CUR    current position
+    SEEK_END    end of file
+
+Return types:
+    ftell()     long; -1L on error
+    fseek()     int; 0 on success, nonzero on failure
+    rewind()    void; no return value
+
+Note:
+    In text streams, only certain fseek offsets are portable. In binary
+    streams, byte offsets are generally used.
+
+
+A15. BINARY FILE OPERATIONS: fwrite AND fread
+---------------------------------------------
+
+typedef struct {
+    int id;
+    float score;
+} Record;
+
+Record rec = {101, 95.5f};
+
+/* Open the file with mode "wb" before writing. */
+size_t items_written = fwrite(&rec, sizeof(Record), 1, fp);
+
+/*
+   fwrite(pointer, size_of_each_item, item_count, file_pointer)
+   Returns the number of complete items written.
+*/
+
+Record read_rec;
+
+/* Open the file with mode "rb" before reading. */
+size_t items_read = fread(&read_rec, sizeof(Record), 1, fp);
+
+if (items_read == 1) {
+    /* Successfully read one Record. */
+} else {
+    /* End-of-file or read error; check ferror(fp) if needed. */
+}
+
+/*
+   fread(pointer, size_of_each_item, item_count, file_pointer)
+   Returns the number of complete items read.
+*/
+
+int is_eof = feof(fp);         /* Nonzero if EOF indicator is set */
+int has_error = ferror(fp);    /* Nonzero if error indicator is set */
+
+/*
+   feof() and ferror() return int.
+   feof() becomes true only after an input operation attempts to read past
+   the end; do not use it as the loop condition before reading.
+   Binary struct files can depend on compiler, padding, and machine format.
+*/
+
+
+END OF APPENDIX
+===============
