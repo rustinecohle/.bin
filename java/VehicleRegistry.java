@@ -1,97 +1,48 @@
 package javaStruct.oop;
 
 public class VehicleRegistry {
-    private Vehicle[] vehicles;
-    private int currentSize;
-
-    public VehicleRegistry(int maxSize) {
-        vehicles = new Vehicle[maxSize];
-        currentSize = 0;
-    }
-
-    public boolean isFull() {
-        return currentSize >= vehicles.length;
-    }
-
-    public int getSize() {
-        return currentSize;
-    }
-
-    // returns index of the plate, or -1 if not found
-    private int indexOf(String plate) {
-        for (int i = 0; i < currentSize; i++) {
-            if (vehicles[i].getPlate().equals(plate)) {
+    // returns the position of the plate, or -1 if not found
+    static int findIndex(Vehicle[] registry, int currentSize, String plate){
+        for(int i=0; i<currentSize; i++){
+            if(registry[i].plate.equals(plate)){
                 return i;
             }
         }
         return -1;
     }
-
-    // returns false if full or duplicate plate
-    public boolean add(Vehicle v) {
-        if (isFull() || indexOf(v.getPlate()) != -1) {
-            return false;
-        }
-        vehicles[currentSize++] = v;
-        return true;
-    }
-
-    // returns the vehicle, or null if not found
-    public Vehicle findByPlate(String plate) {
-        int ind = indexOf(plate);
-        if (ind == -1) {
-            return null;
-        }
-        return vehicles[ind];
-    }
-
-    public int showByOwner(String owner) {
-        int count = 0;
-        for (int i = 0; i < currentSize; i++) {
-            if (vehicles[i].getOwner().equals(owner)) {
-                vehicles[i].display();
+    // shows every vehicle of this owner, returns how many were found
+    static int showByOwner(Vehicle[] registry, int currentSize, String owner){
+        int count=0;
+        for(int i=0; i<currentSize; i++){
+            if(registry[i].owner.equals(owner)){
+                registry[i].display();
                 count++;
             }
         }
         return count;
     }
-
-    public void displayAll() {
-        for (int i = 0; i < currentSize; i++) {
-            vehicles[i].display();
-        }
-    }
-
-    public int showTaxExpired(int year) {
-        int count = 0;
-        for (int i = 0; i < currentSize; i++) {
-            if (vehicles[i].isTaxExpired(year)) {
-                vehicles[i].display();
+    // shows every vehicle with expired tax, returns how many were found
+    static int showTaxExpired(Vehicle[] registry, int currentSize, int year){
+        int count=0;
+        for(int i=0; i<currentSize; i++){
+            if(registry[i].isTaxExpired(year)){
+                registry[i].display();
                 count++;
             }
         }
         return count;
     }
-
-    public boolean transfer(String plate, String newOwner) {
-        Vehicle v = findByPlate(plate);
-        if (v == null) {
+    // removes the vehicle by shifting the rest left
+    // main must do currentSize-- when this returns true
+    static boolean deregister(Vehicle[] registry, int currentSize, String plate){
+        int ind=findIndex(registry, currentSize, plate);
+        if(ind==-1){
             return false;
         }
-        v.transferTo(newOwner);
-        return true;
-    }
-
-    public boolean deregister(String plate) {
-        int ind = indexOf(plate);
-        if (ind == -1) {
-            return false;
+        for(int i=ind; i<currentSize-1; i++){
+            registry[i]=registry[i+1];
         }
-        for (int i = ind; i < currentSize - 1; i++) {
-            vehicles[i] = vehicles[i + 1];
-        }
-        vehicles[currentSize - 1] = null;
-        currentSize--;          // the size is a field, so the method can really update it
+        registry[currentSize-1]=null;
         return true;
     }
 }
